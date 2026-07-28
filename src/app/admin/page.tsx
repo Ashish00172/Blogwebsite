@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { deleteBlog } from "@/features/blog/actions";
-import { listBlogs, listCategories, listTags, listUsers, getDashboardStats } from "@/features/blog/service";
+import { listBlogs, listCategories, listTags, listUsers, getDashboardStats, type BlogWithRelations } from "@/features/blog/service";
 import { createCategory, createTag, setBlogStatus, updateUserRole } from "@/features/admin/actions";
 import { listLoginActivities } from "@/features/admin/audit";
 import { getAuthSession } from "@/lib/session";
@@ -45,7 +45,7 @@ export default async function AdminPage() {
     listLoginActivities(10),
   ]);
 
-  const recentBlogs = blogs.slice(0, 8);
+  const recentBlogs: BlogWithRelations[] = blogs.slice(0, 8);
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100">
