@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { deleteBlog } from "@/features/blog/actions";
-import { listBlogs, listCategories, listTags, listUsers, getDashboardStats, type BlogWithRelations } from "@/features/blog/service";
+import { listBlogs, listCategories, listTags, listUsers, getDashboardStats, type BlogWithRelations, type UserWithCounts } from "@/features/blog/service";
 import { createCategory, createTag, setBlogStatus, updateUserRole } from "@/features/admin/actions";
 import { listLoginActivities, type LoginActivityWithUser } from "@/features/admin/audit";
 import { getAuthSession } from "@/lib/session";
@@ -47,6 +47,7 @@ export default async function AdminPage() {
 
   const recentBlogs: BlogWithRelations[] = blogs.slice(0, 8);
   const recentLoginActivities: LoginActivityWithUser[] = loginActivities;
+  const managedUsers: UserWithCounts[] = users;
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100">
@@ -233,7 +234,7 @@ export default async function AdminPage() {
               <h2 className="mt-2 text-2xl font-semibold">User management</h2>
 
               <div className="mt-6 space-y-4">
-                {users.map((user) => (
+                {managedUsers.map((user) => (
                   <div key={user.id} className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div>

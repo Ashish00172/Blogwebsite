@@ -49,6 +49,27 @@ export type SavedBlog = Bookmark & {
   blog: BlogWithRelations;
 };
 
+export type UserWithCounts = Prisma.UserGetPayload<{
+  select: {
+    id: true;
+    name: true;
+    username: true;
+    email: true;
+    image: true;
+    role: true;
+    passwordUpdatedAt: true;
+    createdAt: true;
+    updatedAt: true;
+    _count: {
+      select: {
+        blogs: true;
+        likes: true;
+        bookmarks: true;
+      };
+    };
+  };
+}>;
+
 const savedBlogInclude = {
   blog: {
     include: blogInclude(),
@@ -330,7 +351,7 @@ export async function listTags() {
   });
 }
 
-export async function listUsers() {
+export async function listUsers(): Promise<UserWithCounts[]> {
   return prisma.user.findMany({
     orderBy: { createdAt: "desc" },
     select: {
