@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { deleteBlog } from "@/features/blog/actions";
 import { listBlogs, listCategories, listTags, listUsers, getDashboardStats, type BlogWithRelations } from "@/features/blog/service";
 import { createCategory, createTag, setBlogStatus, updateUserRole } from "@/features/admin/actions";
-import { listLoginActivities } from "@/features/admin/audit";
+import { listLoginActivities, type LoginActivityWithUser } from "@/features/admin/audit";
 import { getAuthSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
@@ -46,6 +46,7 @@ export default async function AdminPage() {
   ]);
 
   const recentBlogs: BlogWithRelations[] = blogs.slice(0, 8);
+  const recentLoginActivities: LoginActivityWithUser[] = loginActivities;
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100">
@@ -198,8 +199,8 @@ export default async function AdminPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/10 bg-slate-950/40">
-                    {loginActivities.length > 0 ? (
-                      loginActivities.map((activity) => (
+                    {recentLoginActivities.length > 0 ? (
+                      recentLoginActivities.map((activity) => (
                         <tr key={activity.id}>
                           <td className="px-4 py-4 align-top">
                             <p className="font-medium text-white">{activity.user?.name ?? activity.userName ?? "Unknown user"}</p>

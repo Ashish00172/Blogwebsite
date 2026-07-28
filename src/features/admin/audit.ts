@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { Prisma } from "@prisma/client";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
@@ -9,6 +10,20 @@ export type LoginActivityInput = {
   userEmail: string;
   provider: string;
 };
+
+export type LoginActivityWithUser = Prisma.LoginActivityGetPayload<{
+  include: {
+    user: {
+      select: {
+        id: true;
+        name: true;
+        username: true;
+        email: true;
+        passwordUpdatedAt: true;
+      };
+    };
+  };
+}>;
 
 async function getRequestMetadata() {
   const requestHeaders = await headers();
@@ -39,7 +54,7 @@ export async function recordLoginActivity(input: LoginActivityInput) {
   });
 }
 
-export async function listLoginActivities(limit = 25) {
+export async function listLoginActivities(limit = 25): Promise<LoginActivityWithUser[]> {
   return prisma.loginActivity.findMany({
     orderBy: { createdAt: "desc" },
     take: limit,
