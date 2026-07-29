@@ -319,14 +319,14 @@ export async function listBlogs(filters: BlogFilters = {}): Promise<BlogWithRela
   });
 }
 
-export async function getBlogBySlug(slug: string) {
+export async function getBlogBySlug(slug: string): Promise<BlogWithRelations | null> {
   return prisma.blog.findUnique({
     where: { slug },
     include: blogInclude(),
   });
 }
 
-export async function getLatestPublishedBlog() {
+export async function getLatestPublishedBlog(): Promise<BlogWithRelations | null> {
   return prisma.blog.findFirst({
     where: { status: "PUBLISHED" },
     orderBy: { createdAt: "desc" },
@@ -342,7 +342,7 @@ export async function listSavedBlogs(userId: string): Promise<SavedBlog[]> {
   }) as unknown as SavedBlog[];
 }
 
-export async function getBlogById(id: string) {
+export async function getBlogById(id: string): Promise<BlogWithRelations | null> {
   return prisma.blog.findUnique({
     where: { id },
     include: blogInclude(),
