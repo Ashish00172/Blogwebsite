@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { deleteBlog } from "@/features/blog/actions";
-import { listBlogs, listCategories, listTags, listUsers, getDashboardStats, type BlogWithRelations, type UserWithCounts } from "@/features/blog/service";
+import { listBlogs, listCategories, listTags, listUsers, getDashboardStats, type BlogWithRelations, type CategoryWithCounts, type TagWithCounts, type UserWithCounts } from "@/features/blog/service";
 import { createCategory, createTag, setBlogStatus, updateUserRole } from "@/features/admin/actions";
 import { listLoginActivities, type LoginActivityWithUser } from "@/features/admin/audit";
 import { getAuthSession } from "@/lib/session";
@@ -274,7 +274,7 @@ export default async function AdminPage() {
                   <h3 className="text-lg font-semibold text-white">Categories</h3>
                   <div className="mt-3 space-y-2">
                     {categories.length > 0 ? (
-                      categories.map((category) => (
+                      categories.map((category: CategoryWithCounts) => (
                         <div key={category.id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-300">
                           <span>{category.name}</span>
                           <span>{category._count.blogs}</span>
@@ -290,7 +290,7 @@ export default async function AdminPage() {
                   <h3 className="text-lg font-semibold text-white">Tags</h3>
                   <div className="mt-3 space-y-2">
                     {tags.length > 0 ? (
-                      tags.map((tag) => (
+                      tags.map((tag: TagWithCounts) => (
                         <div key={tag.id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-300">
                           <span>{tag.name}</span>
                           <span>{tag._count.blogs}</span>
