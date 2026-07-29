@@ -106,6 +106,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const likeLabel = viewerLike ? "Unlike" : "Like";
   const subscribeLabel = viewerSubscription ? "Unsubscribe" : "Subscribe";
   const bookmarkLabel = viewerBookmark ? "Unsave" : "Save";
+  const paragraphs: string[] = blog.content.split(/\n+/);
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-16 text-slate-900">
@@ -226,7 +227,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
             </div>
 
             <div className="mt-10 space-y-6 text-base leading-8 text-slate-700">
-              {blog.content.split(/\n+/).map((paragraph, index) => (
+              {paragraphs.map((paragraph: string, index: number) => (
                 <p key={`${blog.id}-${index}`} className="whitespace-pre-wrap">
                   {paragraph}
                 </p>
