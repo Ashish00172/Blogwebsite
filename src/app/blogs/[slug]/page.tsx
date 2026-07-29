@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { addBlogComment, deleteBlog, toggleBlogBookmark, toggleBlogLike, toggleBlogSubscription } from "@/features/blog/actions";
-import { getBlogBySlug } from "@/features/blog/service";
+import { getBlogBySlug, type BlogComment } from "@/features/blog/service";
 import { getAuthSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { Bookmark, Heart, MessageSquareText, UserPlus } from "lucide-react";
@@ -280,7 +280,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
 
               <div className="mt-6 space-y-4">
                 {blog.comments.length > 0 ? (
-                  blog.comments.map((comment) => (
+                  blog.comments.map((comment: BlogComment) => (
                     <article key={comment.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
