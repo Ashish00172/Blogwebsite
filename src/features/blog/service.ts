@@ -70,6 +70,26 @@ export type UserWithCounts = Prisma.UserGetPayload<{
   };
 }>;
 
+export type CategoryWithCounts = Prisma.CategoryGetPayload<{
+  include: {
+    _count: {
+      select: {
+        blogs: true;
+      };
+    };
+  };
+}>;
+
+export type TagWithCounts = Prisma.TagGetPayload<{
+  include: {
+    _count: {
+      select: {
+        blogs: true;
+      };
+    };
+  };
+}>;
+
 const savedBlogInclude = {
   blog: {
     include: blogInclude(),
@@ -329,7 +349,7 @@ export async function getBlogById(id: string) {
   });
 }
 
-export async function listCategories() {
+export async function listCategories(): Promise<CategoryWithCounts[]> {
   return prisma.category.findMany({
     orderBy: { name: "asc" },
     include: {
@@ -340,7 +360,7 @@ export async function listCategories() {
   });
 }
 
-export async function listTags() {
+export async function listTags(): Promise<TagWithCounts[]> {
   return prisma.tag.findMany({
     orderBy: { name: "asc" },
     include: {
