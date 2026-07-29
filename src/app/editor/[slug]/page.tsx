@@ -56,7 +56,7 @@ export default async function EditBlogPage({ params }: EditBlogPageProps) {
               ogTitle: blog.ogTitle ?? "",
               ogDescription: blog.ogDescription ?? "",
               categoryName: blog.category?.name ?? "",
-              tags: blog.tags.map((tag) => tag.name).join(", "),
+              tags: blog.tags.map((tag: (typeof blog.tags)[number]) => tag.name).join(", "),
             }}
           />
         </div>

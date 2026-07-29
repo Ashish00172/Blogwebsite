@@ -67,7 +67,7 @@ export default async function SavedBlogsPage() {
                   <p className="mt-3 text-sm leading-7 text-slate-600">{item.blog.excerpt ?? item.blog.metaDescription ?? item.blog.content.slice(0, 160)}</p>
 
                   <div className="mt-5 flex flex-wrap gap-2">
-                    {item.blog.tags.slice(0, 4).map((tag) => (
+                    {item.blog.tags.slice(0, 4).map((tag: (typeof item.blog.tags)[number]) => (
                       <span key={tag.id} className="rounded-full border border-slate-200 px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-500">
                         {tag.name}
                       </span>

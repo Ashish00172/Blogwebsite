@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { listBlogs, listCategories, listTags } from "@/features/blog/service";
+import { listBlogs, listCategories, listTags, type CategoryWithCounts, type TagWithCounts } from "@/features/blog/service";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +69,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
             className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-cyan-500"
           >
             <option value="all">All categories</option>
-            {categories.map((category) => (
+            {categories.map((category: CategoryWithCounts) => (
               <option key={category.id} value={category.slug}>
                 {category.name}
               </option>
@@ -81,7 +81,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
             className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-cyan-500"
           >
             <option value="all">All tags</option>
-            {tags.map((tag) => (
+            {tags.map((tag: TagWithCounts) => (
               <option key={tag.id} value={tag.slug}>
                 {tag.name}
               </option>
@@ -146,7 +146,7 @@ export default async function BlogsPage({ searchParams }: BlogsPageProps) {
                   <p className="mt-3 text-sm leading-7 text-slate-600">{blog.excerpt ?? blog.content.slice(0, 160)}</p>
 
                   <div className="mt-5 flex flex-wrap gap-2">
-                    {blog.tags.slice(0, 4).map((tag) => (
+                    {blog.tags.slice(0, 4).map((tag: (typeof blog.tags)[number]) => (
                       <span key={tag.id} className="rounded-full border border-slate-200 px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-500">
                         {tag.name}
                       </span>

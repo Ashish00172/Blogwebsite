@@ -156,7 +156,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Tags</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {blog.tags.length > 0 ? blog.tags.map((tag) => (
+                  {blog.tags.length > 0 ? blog.tags.map((tag: (typeof blog.tags)[number]) => (
                     <span key={tag.id} className="rounded-full bg-white px-3 py-1 text-xs uppercase tracking-[0.2em] text-slate-700">
                       {tag.name}
                     </span>
