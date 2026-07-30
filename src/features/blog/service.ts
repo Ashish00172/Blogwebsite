@@ -1,6 +1,5 @@
 import "server-only";
 
-import type { Blog, Bookmark, Category, Comment, Prisma, Tag, User } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -29,72 +28,103 @@ export const blogInputSchema = z.object({
 
 export type BlogInput = z.infer<typeof blogInputSchema>;
 
-export type BlogComment = Comment & {
-  user: Pick<User, "id" | "name" | "username" | "image">;
-};
+async function fetchBlogs(filters: BlogFilters = {}) {
+  const query = filters.query?.trim();
+  const category = filters.category?.trim();
+  const tag = filters.tag?.trim();
+  const status = filters.status?.trim();
 
-export type BlogWithRelations = Blog & {
-  author: User;
-  category: Category | null;
-  tags: Tag[];
-  comments: BlogComment[];
-  _count: {
-    likes: number;
-    comments: number;
-    bookmarks: number;
-  };
-};
-
-export type SavedBlog = Bookmark & {
-  blog: BlogWithRelations;
-};
-
-export type UserWithCounts = Prisma.UserGetPayload<{
-  select: {
-    id: true;
-    name: true;
-    username: true;
-    email: true;
-    image: true;
-    role: true;
-    passwordUpdatedAt: true;
-    createdAt: true;
-    updatedAt: true;
-    _count: {
-      select: {
-        blogs: true;
-        likes: true;
-        bookmarks: true;
-      };
-    };
-  };
-}>;
-
-export type CategoryWithCounts = Prisma.CategoryGetPayload<{
-  include: {
-    _count: {
-      select: {
-        blogs: true;
-      };
-    };
-  };
-}>;
-
-export type TagWithCounts = Prisma.TagGetPayload<{
-  include: {
-    _count: {
-      select: {
-        blogs: true;
-      };
-    };
-  };
-}>;
-
-const savedBlogInclude = {
-  blog: {
+  return prisma.blog.findMany({
+    where: {
+      authorId: filters.authorId,
+      status: status && status !== "all" ? status : undefined,
+      category: category && category !== "all" ? { slug: category } : undefined,
+      tags: tag && tag !== "all" ? { some: { slug: tag } } : undefined,
+      OR: query
+        ? [
+            { title: { contains: query } },
+            { excerpt: { contains: query } },
+            { content: { contains: query } },
+            { keywords: { contains: query } },
+            { category: { name: { contains: query } } },
+            { tags: { some: { name: { contains: query } } } },
+          ]
+        : undefined,
+    },
+    orderBy: { createdAt: filters.sort === "oldest" ? "asc" : "desc" },
     include: blogInclude(),
-  },
-} satisfies Prisma.BookmarkInclude;
+  });
+}
+
+export type BlogWithRelations = Awaited<ReturnType<typeof fetchBlogs>>[number];
+
+export type BlogComment = BlogWithRelations["comments"][number];
+
+async function fetchSavedBlogs(userId: string) {
+  return prisma.bookmark.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      blog: {
+        include: blogInclude(),
+      },
+    },
+  });
+}
+
+export type SavedBlog = Awaited<ReturnType<typeof fetchSavedBlogs>>[number];
+
+async function fetchUsers() {
+  return prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      email: true,
+      image: true,
+      role: true,
+      passwordUpdatedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: {
+        select: {
+          blogs: true,
+          likes: true,
+          bookmarks: true,
+        },
+      },
+    },
+  });
+}
+
+export type UserWithCounts = Awaited<ReturnType<typeof fetchUsers>>[number];
+
+async function fetchCategories() {
+  return prisma.category.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      _count: {
+        select: { blogs: true },
+      },
+    },
+  });
+}
+
+export type CategoryWithCounts = Awaited<ReturnType<typeof fetchCategories>>[number];
+
+async function fetchTags() {
+  return prisma.tag.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      _count: {
+        select: { blogs: true },
+      },
+    },
+  });
+}
+
+export type TagWithCounts = Awaited<ReturnType<typeof fetchTags>>[number];
 
 export type BlogFilters = {
   query?: string;
@@ -292,31 +322,7 @@ export async function deleteBlogRecord(blogId: string, actorId: string) {
 }
 
 export async function listBlogs(filters: BlogFilters = {}): Promise<BlogWithRelations[]> {
-  const query = filters.query?.trim();
-  const category = filters.category?.trim();
-  const tag = filters.tag?.trim();
-  const status = filters.status?.trim();
-
-  return prisma.blog.findMany({
-    where: {
-      authorId: filters.authorId,
-      status: status && status !== "all" ? status : undefined,
-      category: category && category !== "all" ? { slug: category } : undefined,
-      tags: tag && tag !== "all" ? { some: { slug: tag } } : undefined,
-      OR: query
-        ? [
-            { title: { contains: query } },
-            { excerpt: { contains: query } },
-            { content: { contains: query } },
-            { keywords: { contains: query } },
-            { category: { name: { contains: query } } },
-            { tags: { some: { name: { contains: query } } } },
-          ]
-        : undefined,
-    },
-    orderBy: { createdAt: filters.sort === "oldest" ? "asc" : "desc" },
-    include: blogInclude(),
-  });
+  return fetchBlogs(filters);
 }
 
 export async function getBlogBySlug(slug: string): Promise<BlogWithRelations | null> {
@@ -335,11 +341,7 @@ export async function getLatestPublishedBlog(): Promise<BlogWithRelations | null
 }
 
 export async function listSavedBlogs(userId: string): Promise<SavedBlog[]> {
-  return prisma.bookmark.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    include: savedBlogInclude,
-  }) as unknown as SavedBlog[];
+  return fetchSavedBlogs(userId);
 }
 
 export async function getBlogById(id: string): Promise<BlogWithRelations | null> {
@@ -350,49 +352,15 @@ export async function getBlogById(id: string): Promise<BlogWithRelations | null>
 }
 
 export async function listCategories(): Promise<CategoryWithCounts[]> {
-  return prisma.category.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      _count: {
-        select: { blogs: true },
-      },
-    },
-  });
+  return fetchCategories();
 }
 
 export async function listTags(): Promise<TagWithCounts[]> {
-  return prisma.tag.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      _count: {
-        select: { blogs: true },
-      },
-    },
-  });
+  return fetchTags();
 }
 
 export async function listUsers(): Promise<UserWithCounts[]> {
-  return prisma.user.findMany({
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      username: true,
-      email: true,
-      image: true,
-      role: true,
-      passwordUpdatedAt: true,
-      createdAt: true,
-      updatedAt: true,
-      _count: {
-        select: {
-          blogs: true,
-          likes: true,
-          bookmarks: true,
-        },
-      },
-    },
-  });
+  return fetchUsers();
 }
 
 export async function getDashboardStats() {
