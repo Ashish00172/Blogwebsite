@@ -127,7 +127,7 @@ export default async function HomePage() {
                 </p>
 
                 <div className="mt-6 flex flex-wrap gap-2">
-                  {latestBlog.tags.slice(0, 4).map((tag) => (
+                  {latestBlog.tags.slice(0, 4).map((tag: (typeof latestBlog.tags)[number]) => (
                     <span key={tag.id} className="rounded-full border border-slate-200 px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-500">
                       {tag.name}
                     </span>
