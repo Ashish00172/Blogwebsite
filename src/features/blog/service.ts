@@ -181,7 +181,7 @@ function splitTags(tagsValue: string | undefined) {
   );
 }
 
-async function resolveTags(tagsValue: string | undefined) {
+async function resolveTags(tagsValue: string | undefined): Promise<Array<{ id: string }>> {
   const tagNames = splitTags(tagsValue);
   const tags = await Promise.all(
     tagNames.map((name) =>
